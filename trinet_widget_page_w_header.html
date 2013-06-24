@@ -319,25 +319,8 @@ __adroll.render_pixel_code(adroll_adv_id, adroll_pix_id);" href="https://www.hrp
  <ul class="idea-list">
     
           <li>
-            <a href="http://www.trinet.com/ideaview?id=08750000000HUSJAA4">non-smoking patios</a>
+            <a href="getsatisfaction.com/trinet">Set statuses of ideas to make this div.</a>
            </li> 
-    
-          <li>
-            <a href="http://www.trinet.com/ideaview?id=08750000000Ie4nAAC">Clearly identify store locations that are participating in the rewards...</a>
-           </li> 
-    
-          <li>
-            <a href="http://www.trinet.com/ideaview?id=08750000000IiyzAAC">Soft Pretzels</a>
-           </li> 
-    
-          <li>
-            <a href="http://www.trinet.com/ideaview?id=08750000000GsZWAA0">Improve the pastries, PLEASE!!!!</a>
-           </li> 
-    
-          <li>
-            <a href="http://www.trinet.com/ideaview?id=087500000005SUWAA2">chocolate chunk cookie</a>
-           </li> 
-    
  </ul>
 <!--  <ul class="idea-list-key">
   <li><small class="under-review">Under Review</small></li>
@@ -393,10 +376,10 @@ if (typeof GSFN !== "undefined") { GSFN.loadWidget(6136,{"containerId":"getsat-w
      <li><span>16,800</span> <a href="http://www.trinet.com/apex/idealist?lsi=0&amp;cat=Starbucks+Card">HR Passport</a></li>
      <li><span>3,208</span> <a href="http://www.trinet.com/apex/idealist?lsi=0&amp;cat=New+Technology">HR Services</a></li>
      <li><span>11,040</span> <a href="http://www.trinet.com/apex/idealist?lsi=0&amp;cat=Other+Product+Ideas">Payroll and Reporting</a></li>
-     <li><span>16,800</span> <a href="http://www.trinet.com/apex/idealist?lsi=0&amp;cat=Starbucks+Card">Performance Management</a></li>
-     <li><span>3,208</span> <a href="http://www.trinet.com/apex/idealist?lsi=0&amp;cat=New+Technology">Talent Acquisition</a></li> -->
-     <li><span></span> 
-      <a href="http://www.trinet.com/apex/idealist?lsi=0&amp;cat=Other+Product+Ideas">TriNet Perks</a></li>
+     <li><span>16,800</span> <a href="http://www.trinet.com/apex/idealist?lsi=0&amp;cat=Starbucks+Card">Performance Management</a></li> -->
+<!--      <li><span>3,208</span> <a href="http://www.trinet.com/apex/idealist?lsi=0&amp;cat=New+Technology">Talent Acquisition</a></li>
+     <li><span>HOLD0</span> 
+      <a href="http://www.trinet.com/apex/idealist?lsi=0&amp;cat=Other+Product+Ideas">TriNet Perks</a></li> -->
  </ul> 
 <!--  <h3 id="h3-experience-ideas">Experience Ideas</h3>
  <ul>
@@ -690,6 +673,188 @@ if (typeof GSFN !== "undefined") { GSFN.loadWidget(6217,{"containerId":"getsat-w
 </div>
 
 
+<script type="text/javascript">
+    jQuery(document).ready(function () {
+        var apiBaseURL = 'http://api.getsatisfaction.com/companies/trinet/';
+        var productTitle = ''
+        var productURL = ''
+        var numProductTopics = ''
+        jQuery.ajax({
+            type: 'GET',
+            url: apiBaseURL + 'products.json',
+            dataType: 'jsonp',
+            success: function(results) {
+                for (var i=0;i < results.data.length; i++) {
+                    (function () {
+                        var object = results.data[i];
+                        if (object.canonical_name && object.name) {
+                            var productTitle = object.name;
+                            var productURL = "getsatisfaction.com/trinet/products/" + object.canonical_name;
+                            var li;
+                            li = jQuery('<li><a href="' + productURL + '">' + productTitle + '</a></li>');
+                            jQuery('ul.products').append(li);
+                            jQuery.ajax({
+                                type: 'GET',
+                                url: apiBaseURL + 'topics.json?product=' + object.canonical_name,
+                                dataType: 'jsonp',
+                                success: function(results2) {
+                                    var numProductTopics = results2.total;
+                                    li.append('<span>' + numProductTopics + '</span>');
+                                }
+                            });
+                        }
+                    })();
+                }
+            }
+        });
+    });
+</script>
+
+<script type="text/javascript">
+    jQuery(document).ready(function () {
+var companyName = 'trinet';
+var timeStamp = 0;
+
+jQuery(function () {
+    var obj;
+    var today = new Date();
+    var lastWeek = new Date(today.getTime() - 1000 * 60 * 60 * 24 * 7);
+    timeStamp = lastWeek.getTime() / 1000;
+
+    obj = new JSONscriptRequest(
+        'https://api.getsatisfaction.com/companies/' + companyName +
+        '/topics.json?sort=recently_active&limit=30&active_since=' +
+        timeStamp + '&callback=processAllTopics');
+    obj.buildScriptTag(); // Build the script tag 
+    obj.addScriptTag(); // Execute (add) the script tag 
+
+
+var people = new Array();
+var processedPages = 0;
+var repliesToBeHandled = 0;
+var totalPages = 0;
+
+// Generic JSON functions 
+
+function JSONscriptRequest(fullUrl) {
+    this.fullUrl = fullUrl;
+    this.headLoc = document.getElementsByTagName("head")
+        .item(0);
+    this.scriptId = 'YJscriptId' + JSONscriptRequest.scriptCounter++;
+}
+JSONscriptRequest.scriptCounter = 1;
+JSONscriptRequest.prototype.buildScriptTag = function () {
+    this.scriptObj = document.createElement("script");
+    this.scriptObj.setAttribute("type", "text/javascript");
+    this.scriptObj.setAttribute("src", this.fullUrl);
+    this.scriptObj.setAttribute("id", this.scriptId);
+}
+JSONscriptRequest.prototype.removeScriptTag = function () {
+    this.headLoc.removeChild(this.scriptObj);
+}
+JSONscriptRequest.prototype.addScriptTag = function () {
+    this.headLoc.appendChild(this.scriptObj);
+}
+
+function processAllTopics(results) {
+    var obj;
+    if (results.total > 0) {
+        var htmlToAdd = '';
+        totalPages = results.total / 30;
+        for (var pageNum = 0; pageNum < totalPages; pageNum++) {
+            obj = new JSONscriptRequest(
+                'https://api.getsatisfaction.com/companies/' + companyName +
+                '/topics.json?sort=recently_active&active_since=' +
+                timeStamp + '&limit=30&page=' + (pageNum + 1) +
+                '&callback=processEachTopic');
+            obj.buildScriptTag(); // Build the script tag 
+            obj.addScriptTag(); // Execute (add) the script tag 
+    }
+}
+
+jQuery('.leaderboard-body').html('Loading member details...')
+// } 
+
+function processEachTopic(results) {
+    if (results.data.length > 0) {
+        for (var i = 0; i < results.data.length; i++) {
+            if (results.data[i].active_replies > 0) {
+                obj = new JSONscriptRequest(results.data[i].url +
+                    '/replies.json?callback=processEachTopicReplies');
+                obj.buildScriptTag(); // Build the script tag 
+                obj.addScriptTag(); // Execute (add) the script tag 
+                repliesToBeHandled++;
+            }
+        }
+    }
+    processedPages++;
+}
+
+function processEachTopicReplies(results) {
+    if (results.data.length > 0) {
+        for (var i = 0; i < results.data.length; i++) {
+            var ts = new Date(results.data[i].created_at);
+            if ((!results.data[i].author.employee) && (ts.getTime() /
+                1000 > timeStamp)) {
+                peopleIdx = isInArray(results.data[i].author.canonical_name)
+
+                if (peopleIdx >= 0) // if author is already in people[] array, increment the number of activity 
+                {
+                    people[peopleIdx][0]++;
+                } else {
+                    // add new element to array, and initialize the number of activities to 1 
+                    people[people.length] = [1, results.data[i].author.canonical_name,
+                        results.data[i].author.at_sfn, results.data[i].author
+                        .name];
+                }
+            }
+        }
+    }
+
+    repliesToBeHandled--;
+    if ((processedPages >= totalPages - 1) && (repliesToBeHandled <= 0)) {
+        var htmlToAdd = '';
+        people.sort(compareTotals);
+
+        people.remove(0);
+
+        var peopleLimit = people.length;
+        if (peopleLimit > 10)
+            peopleLimit = 10;
+
+        for (var i = 0; i < peopleLimit; i++) {
+            htmlToAdd = htmlToAdd + '<div class=numReplies>' + people[i]
+            [0] + '</div><div class="peopleLink"><a href="' + people[i]
+            [2] + '">' + people[i][3] + '</a></div>';
+        }
+        jQuery('#peopleList')
+            .html(htmlToAdd);
+    }
+    }
+
+    function isInArray(name) {
+        for (var i = 0; i < people.length; i++) {
+            if (people[i][1] == name) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    function compareTotals(a, b) {
+        return b[0] - a[0];
+    }
+
+    Array.prototype.remove = function (from, to) {
+        var rest = this.slice((to || from) + 1 || this.length);
+        this.length = from < 0 ? this.length + from : from;
+        return this.push.apply(this, rest);
+    };
+}
+    });
+});
+</script>
+
 
 
  <!--**********-->
@@ -751,14 +916,6 @@ if (typeof GSFN !== "undefined") { GSFN.loadWidget(6217,{"containerId":"getsat-w
 
 </span></span>
 
-// <script type ="text/javascript">
-//     jQuery('#view_ideas').click(function () {
-//         if (typeof GSFN !== "undefined") { 
-//             jQuery('#getsat-widget-6135').empty();
-//             GSFN.loadWidget(6135,{"containerId":"getsat-widget-6135"});
-//         }
-//     });
-// </script>
 
 <!-- Start of ShareThis Code  -->
 <script>
