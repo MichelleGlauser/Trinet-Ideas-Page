@@ -1,0 +1,98 @@
+<script type="text/javascript">
+    jQuery(document).ready(function () {
+        var apiBaseURL = 'http://api.getsatisfaction.com/companies/trinet/';      
+        function getIdeasData() {
+            return jQuery.ajax({
+                type: 'GET',
+                url: apiBaseURL + 'products.json?callback=getProducts',
+                dataType: 'jsonp'
+            });
+        }
+
+        function handleIdeasData(data) {
+            for (var i=0;i < results.data.length; i++) {
+                var object = results.data[i];
+                if (object.canonical_name && object.name) {
+                    var productTitles = object.name;
+                    var productCanonNames = object.canonical_name;
+                    for (var j=0;j < productTitles; j++) {
+                        var productURL = "getsatisfaction.com/trinet/products/" + object.canonical_name;
+                        console.log(productTitle, productURL, productCanonName);
+                        handleProductsData(productTitle, productCanonName, productURL);
+                    }
+                }
+            }
+        }
+
+        function splitProducts(data) {
+            
+
+        }
+
+        function handleProductsData(data) {
+            return jQuery.ajax({
+                type: 'GET',
+                url: apiBaseURL + 'topics.json?product=' + productCanonName,
+                datatype: 'jsonp'
+                    success: function(results) {
+                        var numProductTopics = results.total;
+                        for (var j=0; j < results.total; j++) {
+                            var total = numProductTopics[j];
+                            printData(total, productURL, productTitle);
+                            jQuery('.ext-left').append('<li>' + numProductTopics + '</li>');
+                            console.log(numProductTopics);
+                        }
+            })
+        }
+
+        function printData(data) {
+            jQuery('<li>' + total + " <a href=" + productURL + ">" + productTitle +'</a></li>').html('#product_titles');
+        }
+
+        getIdeasData().done([handleIdeasData);
+
+
+        }
+        var apiBaseURL = 'http://api.getsatisfaction.com/companies/trinet/'; 
+        jQuery.ajax({
+            type: 'GET',
+            url: apiBaseURL + 'products.json?callback=getProducts',
+            dataType: 'jsonp',
+            success: function(results) {
+                for (var i=0;i < results.data.length; i++) {
+                    var object = results.data[i];
+                    if (object.canonical_name && object.name) {
+                        var productTitle = object.name;
+                            productURL = "getsatisfaction.com/trinet/products/" + object.canonical_name;
+                            console.log(productTitle);
+                            jQuery('.ext-right').append('<li>' + productTitle + '</li>');
+                            var productHTML = '<a href ="' + productURL + '">' + productTitle + '</a>'; 
+                            jQuery(productHTML).html('.ext-right');
+                            console.log(productURL);
+                        var productList = '<li><a href="' + productURL + '">' + productTitle + '</a></li>'
+                        jQuery('#product_ideas_div').html(productList);   
+                        
+                        (function(productTitle, productURL){
+                            jQuery.ajax({
+                                type: 'GET',
+                                url: apiBaseURL + 'topics.json?product=' + object.canonical_name + '?callback=getProductInfo',
+                                dataType: 'jsonp',
+                                success: function(results2) {
+                                    var numProductTopics = results2.total;
+                                        jQuery('.ext-left').append('<li>' + numProductTopics + '</li>');
+                                        console.log(numProductTopics);
+                                        jQuery(numProductTopics).prepend(productList);
+                                    var productList = '<div class = "view_ideas">' + numProductTopics + '</div><div class = "product_name"><a href = "' + productURL + '">' + productTitle + '</a></div>/';
+                                    jQuery('#product_ideas_div').insertAfter('#community_description');
+                                    jQuery('#product_numbers').insertAfter('#product_ideas_div');
+                                    jQuery('#product_ideas_div').html(productList);     
+                                }
+                            });
+                        });(productTitle, productURL);
+                    })
+                    console.log(productTitle, productURL, numProductTopics);
+                }
+            }
+        });
+    });
+</script>
