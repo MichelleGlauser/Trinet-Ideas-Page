@@ -34,7 +34,7 @@
             url: 'https://api.getsatisfaction.com/companies/' + companyName +
                 '/topics.json?sort=recently_active&limit=30&active_since=' +
                 timeStamp,
-            datatype: 'jsonp',
+            dataType: 'jsonp',
             success: function(results) {
                 processAllTopics(results);
             }
