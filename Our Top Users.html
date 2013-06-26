@@ -76,6 +76,7 @@
                             console.log("3rd", results);
                             processEachTopicReplies(results);
                             repliesToBeHandled++;
+                            console.log("repliesToBeHandled", repliesToBeHandled);
                         }
                     });
                 } 
@@ -85,6 +86,7 @@
     }                
 
     var people = new Array();
+    OR var people = new Object();
    
 
     function processEachTopicReplies(results) {
@@ -95,9 +97,15 @@
                     1000 > timeStamp)) {
                     peopleIdx = isInArray(results.data[i].author.canonical_name)
                     // if author is already in people[] array, increment the number of activity 
+                    // why not just push a {id: num, count: num, other_attr: other_val} 
+                    console.log(people[peopleIdx][0]);
+
                     if (peopleIdx >= 0) {
+                        people[]
+                        people.push(peopleIdx: "")
                         people[peopleIdx][0]++;
                     } 
+                    console.log(people[peopleIdx][0]);
                     else {
                         // add new element to array, and initialize the number of activities to 1 
                         people[people.length] = [1, results.data[i].author.canonical_name,
@@ -108,9 +116,13 @@
             }
         }
         repliesToBeHandled--;
+        console.log("repliesToBeHandled", repliesToBeHandled);
+    }
+
+    function sortTotals()
         if ((processedPages >= totalPages - 1) && (repliesToBeHandled <= 0)) {
             people.sort(compareTotals);
-            people.remove(0);
+            // people.remove(0);
             var peopleLimit = people.length;
             if (peopleLimit > 10) {
                 peopleLimit = 10;
@@ -119,7 +131,7 @@
                 var li;
                 li = jQuery('<span>' + people[i][0] + '</span><li class="peopleLink"><a href="' + people[i][2] + '">' + people[i][3] + '</a></li>');
                 jQuery('ul.top-users').append(li);
-                console.log(li);
+                // console.log(li);
             }
         }
     }
@@ -129,6 +141,7 @@
 
     function isInArray(name) {
         for (var i = 0; i < people.length; i++) {
+            console.log("people=", people);
             if (people[i][1] == name) {
                 return i;
             }
