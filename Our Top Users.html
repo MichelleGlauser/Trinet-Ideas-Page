@@ -16,19 +16,17 @@
 
 
 
-<script type='text/javascript'>
-    var companyName = 'trinet';
-    var timeStamp = 0;
+<script src="ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js" type='text/javascript'>
 
+    
+    var companyName = 'omgpop';
+    var timeStamp = 0;
+    var today = new Date();
+    var lastWeek = new Date(today.getTime() - 1000 * 60 * 60 * 24 * 7);
+    var timeStamp = Math.round(lastWeek.getTime() / 1000);
 
     jQuery(function () {
         
-
-        var obj;
-        var today = new Date();
-        var lastWeek = new Date(today.getTime() - 1000 * 60 * 60 * 24 * 7);
-        var timeStamp = lastWeek.getTime() / 1000;
-
         jQuery.ajax({
             type: 'GET',
             url: 'https://api.getsatisfaction.com/companies/' + companyName +
@@ -36,20 +34,16 @@
                 timeStamp,
             dataType: 'jsonp',
             success: function(results) {
+                console.log("1st", results);
                 processAllTopics(results);
             }
         });
     });
 
-    var people = new Array();
-    var processedPages = 0;
-    var repliesToBeHandled = 0;
     var totalPages = 0;
 
     function processAllTopics(results) { 
-        var obj;
         if (results.total > 0) {
-            var htmlToAdd = '';
             totalPages = results.total / 30;
             for (var pageNum = 0; pageNum < totalPages; pageNum++) {
                 jQuery.ajax({
@@ -59,6 +53,7 @@
                         timeStamp + '&limit=30&page=' + (pageNum + 1),
                     dataType: 'jsonp',
                     success: function(results) {
+                        console.log("2nd", results);
                         processEachTopic(results); 
                     }
                 }); 
@@ -66,6 +61,8 @@
         } 
     };
 
+    var repliesToBeHandled = 0;
+    var processedPages = 0;
     function processEachTopic(results) {
         if (results.data.length > 0) {
             for (var i = 0; i < results.data.length; i++) {
@@ -76,8 +73,9 @@
                             '/replies.json',
                         dataType: 'jsonp',
                         success: function(results) {
+                            console.log("3rd", results);
                             processEachTopicReplies(results);
-                              repliesToBeHandled++;
+                            repliesToBeHandled++;
                         }
                     });
                 } 
@@ -85,6 +83,9 @@
         }
         processedPages++;
     }                
+
+    var people = new Array();
+   
 
     function processEachTopicReplies(results) {
         if (results.data.length > 0) {
@@ -108,7 +109,6 @@
         }
         repliesToBeHandled--;
         if ((processedPages >= totalPages - 1) && (repliesToBeHandled <= 0)) {
-            var htmlToAdd = '';
             people.sort(compareTotals);
             people.remove(0);
             var peopleLimit = people.length;
@@ -116,12 +116,11 @@
                 peopleLimit = 10;
             }
             for (var i = 0; i < peopleLimit; i++) {
-                htmlToAdd = htmlToAdd + '<span="numReplies">' + people[i]
-                [0] + '</span><li class="peopleLink"><a href="' + people[i]
-                [2] + '">' + people[i][3] + '</a></li>';
+                var li;
+                li = jQuery('<span>' + people[i][0] + '</span><li class="peopleLink"><a href="' + people[i][2] + '">' + people[i][3] + '</a></li>');
+                jQuery('ul.top-users').append(li);
+                console.log(li);
             }
-            jQuery('#ul.top-users').html(htmlToAdd);
-            console.log(htmlToAdd);
         }
     }
 
