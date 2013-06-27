@@ -1,0 +1,167 @@
+<!-- Head Tag  -->
+
+<div class="mini-survey leaderboard-container">  
+  <div class="top">
+    <h3>Our Top Users</h3>
+      <ul class="top-users"
+    </ul>
+  </div>
+</div>
+
+
+<script src="ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js" type='text/javascript'>
+
+    function getPairs(obj) {
+        var pairs = [];
+        for (var key in obj) if (_.has(obj, key)) pairs.push([key, obj[key]]);
+        return pairs;
+    }
+    
+    var companyName = 'omgpop';
+    var timeStamp = 0;
+    var today = new Date();
+    var lastWeek = new Date(today.getTime() - 1000 * 60 * 60 * 24 * 7);
+    var timeStamp = Math.round(lastWeek.getTime() / 1000);
+
+    jQuery(function () {
+
+        function getTopicsTotal() {
+            var companyTopicsUrl = 'https://api.getsatisfaction.com/companies/' + companyName + '/topics.json?sort=recently_active&limit=1&active_since=' +
+                timeStamp;
+            return jQuery.ajax({
+                type: 'GET',
+                url: companyTopicsUrl,
+                dataType: 'jsonp'
+            });
+        }
+
+        function getAllTopics(pagesCount) {
+            var topics = [];
+            for (var pageNum = 0; pageNum < totalPages; pageNum++) {
+                topics.push(jQuery.ajax({
+                    type: 'GET',
+                    url: 'https://api.getsatisfaction.com/companies/' + companyName +
+                        '/topics.json?sort=recently_active&active_since=' +
+                        timeStamp + '&limit=30&page=' + (pageNum + 1),
+                    dataType: 'jsonp'
+                })); 
+            }
+            return topics;
+        }
+
+        function getAllReplies(topics) {
+            return _.map(topics, function(topic) {
+                return jQuery.ajax({
+                    type: 'GET',
+                    url: topic.url + '/replies.json',
+                    dataType: 'jsonp'
+                });
+            });
+        }
+
+        var peopleTracker = {
+            _people: { },
+            trackPerson: function(name, url) {
+                this._people[name] = this._people[name] || { count:0 };
+                this._people[name].count++;
+                this._people[name].url = url;
+            },
+            getPeople: function() {
+                return this._people;
+            }
+        };
+        
+        getTopicsTotal().done(function(results) {
+            var allTopics = getAllTopics(Math.ceil(results.total / 30));
+            jQuery.when.apply(jQuery, allTopics).done(function() {
+                var args = _.toArray(arguments);
+                var topics = _.map(args, function(arg) { return arg[0].data; });
+                var topicsCombined = _.union.apply(_, topics);
+                var allReplies = getAllReplies(topicsCombined);
+                jQuery.when.apply(jQuery, allReplies).done(function() {
+                    var args = _.toArray(arguments);
+                    var replies = _.map(args, function(arg) { return arg[0].data; });
+                    var repliesCombined = _.union.apply(_, replies);
+                    _.each(repliesCombined, function(reply) {
+                        peopleTracker.trackPerson(reply.author.canonical_name, reply.author.at_sfn);
+                    });
+                    var activities = getPairs(peopleTracker.getPeople());
+                    var sortedActivities = _.sortBy(activities, function(activity) {
+                        var userName = activity[0];
+                        var userData = activity[1];
+                        return -1*userData.count;
+                    });
+                    var topAwesomePeople = _.first(sortedActivities, 10);
+                    console.log(topAwesomePeople);
+                });
+            });
+        });
+
+    });
+
+    var totalPages = 0;
+
+    function processAllTopics(results) { 
+        if (results.total > 0) {
+            totalPages = results.total / 30;
+            for (var pageNum = 0; pageNum < totalPages; pageNum++) {
+                jQuery.ajax({
+                    type: 'GET',
+                    url: 'https://api.getsatisfaction.com/companies/' + companyName +
+                        '/topics.json?sort=recently_active&active_since=' +
+                        timeStamp + '&limit=30&page=' + (pageNum + 1),
+                    dataType: 'jsonp',
+                    success: function(results) {
+                        console.log("2nd", results);
+                        processEachTopic(results); 
+                    }
+                }); 
+            }
+        } 
+    };
+
+    var repliesToBeHandled = 0;
+    var processedPages = 0;
+    function processEachTopic(results) {
+        if (results.data.length > 0) {
+            for (var i = 0; i < results.data.length; i++) {
+                if (results.data[i].active_replies > 0) {
+                    jQuery.ajax({
+                        type: 'GET',
+                        url: results.data[i].url +
+                            '/replies.json',
+                        dataType: 'jsonp',
+                        success: function(results) {
+                            console.log("3rd:", results);
+                            processEachTopicReplies(results);
+                        }
+                    });
+                } 
+            }
+        }
+        processedPages++;
+    }                
+
+    var peopleTracker = {
+        _activityByPerson: { },
+        trackActivity: function(name) {
+            this._activityByPerson[name] = (this._activityByPerson[name] || 0) + 1;
+        },
+        getActivities: function() {
+            return this._activityByPerson;
+        }
+    };
+   
+
+    function processEachTopicReplies(results) {
+        if (results.data.length > 0) {
+            for (var i = 0; i < results.data.length; i++) {
+                var ts = new Date(results.data[i].created_at);
+                if ((!results.data[i].author.employee) && (ts.getTime() /
+                    1000 > timeStamp)) {
+                    peopleTracker.trackActivity(results.data[i].author.canonical_name) 
+                }
+            }
+        }
+    }
+</script>
